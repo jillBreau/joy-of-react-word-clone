@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { GUESS_LENGTH } from '../../constants'
 
-function GuessInput({ guesses, setGuesses, won, over }) {
+function GuessInput({ handleGuess, disabled }) {
   const [input, setInput] = useState('')
 
   const changeInput = (value) => {
@@ -9,14 +9,12 @@ function GuessInput({ guesses, setGuesses, won, over }) {
   }
   const submitInput = (e) => {
     e.preventDefault()
-    const newGuesses = [...guesses]
-    newGuesses.push(input)
-    setGuesses(newGuesses)
+    handleGuess(input)
     setInput('')
   }
 
   return (
-    <form onSubmit={submitInput}>
+    <form class="guess-input-wrapper" onSubmit={submitInput}>
       <label htmlFor="guess-input">Enter guess:</label>
       <input
         required
@@ -28,7 +26,7 @@ function GuessInput({ guesses, setGuesses, won, over }) {
         type="text"
         value={input}
         onChange={(e) => changeInput(e.target.value)}
-        disabled={won || over}
+        disabled={disabled}
       ></input>
     </form>
   )

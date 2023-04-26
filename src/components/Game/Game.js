@@ -1,56 +1,52 @@
-import React, { useState, useEffect } from 'react'
-
+import React, { useState } from 'react'
 import { sample } from '../../utils'
 import { WORDS } from '../../data'
 import { NUM_OF_GUESSES_ALLOWED } from '../../constants'
 import Guesses from '../Guesses/Guesses'
 import GuessInput from '../GuessInput/GuessInput'
-import CompleteBanner from '../CompleteBanner/CompleteBanner'
+import WonBanner from '../WonBanner/WonBanner'
+import LostBanner from '../LostBanner/LostBanner'
 
 function Game() {
   const [guesses, setGuesses] = useState([])
-  const [won, setWon] = useState(false)
-  const [over, setOver] = useState(false)
+  const [status, setStatus] = useState('running')
   const [answer, setAnswer] = React.useState(() => {
     return sample(WORDS)
   })
+  const restartGame = 'Restart game'
 
-  useEffect(() => {
-    if (guesses[guesses.length - 1] === answer) {
-      setWon(true)
-    } else if (guesses.length === NUM_OF_GUESSES_ALLOWED) {
-      setOver(true)
+  const handleGuess = (guess) => {
+    const nextGuesses = [...guesses, guess]
+    if (guess === answer) {
+      setStatus('won')
+    } else if (nextGuesses.length === NUM_OF_GUESSES_ALLOWED) {
+      setStatus('lost')
     }
-  }, [guesses, answer])
+    setGuesses(nextGuesses)
+  }
 
   const onRestart = () => {
     setGuesses([])
-    setWon(false)
-    setOver(false)
+    setStatus('running')
     setAnswer(sample(WORDS))
   }
 
   return (
     <>
-      <Guesses
-        guesses={guesses}
-        answer={answer}
-        setWon={setWon}
-        setOver={setOver}
-      />
-      <GuessInput
-        guesses={guesses}
-        setGuesses={setGuesses}
-        won={won}
-        over={over}
-      />
-      {(won || over) && (
-        <CompleteBanner
-          won={won}
-          over={over}
+      <Guesses guesses={guesses} answer={answer} />
+      <GuessInput handleGuess={handleGuess} disabled={status !== 'running'} />
+      {status === 'won' && (
+        <WonBanner
           numGuesses={guesses.length}
+          buttonFn={onRestart}
+          buttonText={restartGame}
+        />
+      )}
+      {status === 'lost' && (
+        <LostBanner
           answer={answer}
-          onRestart={onRestart}
+          buttonFn={onRestart}
+          buttonText={restartGame}
         />
       )}
     </>
